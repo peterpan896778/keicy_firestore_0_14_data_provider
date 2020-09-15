@@ -52,10 +52,7 @@ class KeicyFireStoreDataProvider {
   }) async {
     try {
       await FirebaseFirestore.instance.collection(path).doc(id).update(data);
-      return {
-        "success": true,
-        "data": [data]
-      };
+      return {"success": true, "data": data};
     } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
