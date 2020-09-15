@@ -22,16 +22,16 @@ class KeicyFireStoreDataProvider {
         id: ref.id,
         data: {'id': ref.id},
       );
-      if (res) {
+      if (res["success"]) {
         return {
-          "state": true,
+          "success": true,
           "data": [data]
         };
       } else {
-        return {"state": false, "errorCode": 1234, "errorString": "Firestore Error"};
+        return {"success": false, "errorCode": "404", "errorString": "Firestore Error"};
       }
     } on PlatformException catch (e) {
-      return {"state": false, "errorCode": e.code, "errorString": e.message};
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
       String errorString = list[2];
@@ -41,44 +41,71 @@ class KeicyFireStoreDataProvider {
       } else {
         errorCode = list[2];
       }
-
-      ///   --- Error Codes ---
-      /// ERROR_USER_NOT_FOUND, ERROR_WRONG_PASSWORD,ERROR_NETWORK_REQUEST_FAILED
-      ///
-      return {"state": false, "errorCode": errorCode, "errorString": errorString};
+      return {"success": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
-  Future<bool> updateDocument({@required String path, @required String id, @required Map<String, dynamic> data}) async {
+  Future<Map<String, dynamic>> updateDocument({
+    @required String path,
+    @required String id,
+    @required Map<String, dynamic> data,
+  }) async {
     try {
       await FirebaseFirestore.instance.collection(path).doc(id).update(data);
-      return true;
+      return {
+        "success": true,
+        "data": [data]
+      };
+    } on PlatformException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
-      print("____________ firebase updateDocument error ____________");
-      print(e);
-      return false;
+      List<String> list = e.toString().split(regExp);
+      String errorString = list[2];
+      String errorCode;
+      if (e.toString().contains("FirebaseError")) {
+        errorCode = list[4];
+      } else {
+        errorCode = list[2];
+      }
+      return {"success": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
-  Future<bool> deleteDocument({@required String path, @required String id}) async {
+  Future<Map<String, dynamic>> deleteDocument({@required String path, @required String id}) async {
     try {
       await FirebaseFirestore.instance.collection(path).doc(id).delete();
-      return true;
+      return {"success": true};
+    } on PlatformException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
-      print("____________ firebase deleteDocument error ____________");
-      print(e);
-      return false;
+      List<String> list = e.toString().split(regExp);
+      String errorString = list[2];
+      String errorCode;
+      if (e.toString().contains("FirebaseError")) {
+        errorCode = list[4];
+      } else {
+        errorCode = list[2];
+      }
+      return {"success": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
-  Future<bool> isDocExist({String path, String id}) async {
+  Future<Map<String, dynamic>> isDocExist({String path, String id}) async {
     try {
       final DocumentSnapshot docSnapShot = await FirebaseFirestore.instance.collection(path).doc(id).get();
-      return docSnapShot.exists;
+      return {"success": docSnapShot.exists};
+    } on PlatformException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
-      print("____________ firebase isDocExist error ____________");
-      print(e);
-      return false;
+      List<String> list = e.toString().split(regExp);
+      String errorString = list[2];
+      String errorCode;
+      if (e.toString().contains("FirebaseError")) {
+        errorCode = list[4];
+      } else {
+        errorCode = list[2];
+      }
+      return {"success": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
@@ -87,9 +114,9 @@ class KeicyFireStoreDataProvider {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance.collection(path).doc(id).get();
       Map<String, dynamic> data = documentSnapshot.data();
       data["id"] = documentSnapshot.id;
-      return {"state": true, "data": data};
+      return {"success": true, "data": data};
     } on PlatformException catch (e) {
-      return {"state": false, "errorCode": e.code, "errorString": e.message};
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
       String errorString = list[2];
@@ -99,11 +126,7 @@ class KeicyFireStoreDataProvider {
       } else {
         errorCode = list[2];
       }
-
-      ///   --- Error Codes ---
-      /// ERROR_USER_NOT_FOUND, ERROR_WRONG_PASSWORD,ERROR_NETWORK_REQUEST_FAILED
-      ///
-      return {"state": false, "errorCode": errorCode, "errorString": errorString};
+      return {"success": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
@@ -141,9 +164,9 @@ class KeicyFireStoreDataProvider {
         tmp["id"] = snapshot.docs.elementAt(i).id;
         data.add(tmp);
       }
-      return {"state": true, "data": data};
+      return {"success": true, "data": data};
     } on PlatformException catch (e) {
-      return {"state": false, "errorCode": e.code, "errorString": e.message};
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
       String errorString = list[2];
@@ -153,11 +176,7 @@ class KeicyFireStoreDataProvider {
       } else {
         errorCode = list[2];
       }
-
-      ///   --- Error Codes ---
-      /// ERROR_USER_NOT_FOUND, ERROR_WRONG_PASSWORD,ERROR_NETWORK_REQUEST_FAILED
-      ///
-      return {"state": false, "errorCode": errorCode, "errorString": errorString};
+      return {"success": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
@@ -203,9 +222,9 @@ class KeicyFireStoreDataProvider {
       if (orderby != null) query = _getOrderby(query, orderby);
       if (limit != null) query = query.limit(limit);
       QuerySnapshot snapshot = await query.get();
-      return {"state": true, "data": snapshot.docs.length};
+      return {"success": true, "data": snapshot.docs.length};
     } on PlatformException catch (e) {
-      return {"state": false, "errorCode": e.code, "errorString": e.message};
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
       String errorString = list[2];
@@ -215,11 +234,7 @@ class KeicyFireStoreDataProvider {
       } else {
         errorCode = list[2];
       }
-
-      ///   --- Error Codes ---
-      /// ERROR_USER_NOT_FOUND, ERROR_WRONG_PASSWORD,ERROR_NETWORK_REQUEST_FAILED
-      ///
-      return {"state": false, "errorCode": errorCode, "errorString": errorString};
+      return {"success": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
@@ -283,15 +298,14 @@ class KeicyFireStoreDataProvider {
           } catch (e) {
             print(e);
           }
-
-          return {"state": true, "data": data};
+          return {"success": true, "data": data};
         }));
       });
 
       parentSnapshot = await parentQuery.get();
       for (var i = 0; i < parentSnapshot.docs.length; i++) {}
     } on PlatformException catch (e) {
-      return {"state": false, "errorCode": e.code, "errorString": e.message};
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
       String errorString = list[2];
@@ -301,11 +315,7 @@ class KeicyFireStoreDataProvider {
       } else {
         errorCode = list[2];
       }
-
-      ///   --- Error Codes ---
-      /// ERROR_USER_NOT_FOUND, ERROR_WRONG_PASSWORD,ERROR_NETWORK_REQUEST_FAILED
-      ///
-      return {"state": false, "errorCode": errorCode, "errorString": errorString};
+      return {"success": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
