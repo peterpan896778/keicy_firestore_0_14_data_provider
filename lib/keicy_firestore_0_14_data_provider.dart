@@ -68,6 +68,24 @@ class KeicyFireStoreDataProvider {
     }
   }
 
+  Future<bool> setDocument({
+    @required String path,
+    @required String id,
+    @required Map<String, dynamic> data,
+    bool merge = true,
+    List<dynamic> mergeFields = const [],
+  }) async {
+    SetOptions setOptions = SetOptions(merge: merge, mergeFields: mergeFields);
+
+    try {
+      await FirebaseFirestore.instance.collection(path).doc(id).set(data, setOptions);
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
   Future<Map<String, dynamic>> deleteDocument({@required String path, @required String id}) async {
     try {
       await FirebaseFirestore.instance.collection(path).doc(id).delete();
