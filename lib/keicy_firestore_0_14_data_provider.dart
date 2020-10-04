@@ -5,13 +5,12 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class KeicyFireStoreDataProvider {
   static KeicyFireStoreDataProvider _instance = KeicyFireStoreDataProvider();
   static KeicyFireStoreDataProvider get instance => _instance;
 
-  final RegExp regExp = RegExp(r'(PlatformException\()|(FirebaseError)|([(:,.)])');
+  final RegExp regExp = RegExp(r'(FirebaseException\()|(FirebaseError)|([(:,.)])');
 
   Future<Map<String, dynamic>> addDocument({@required String path, @required Map<String, dynamic> data}) async {
     try {
@@ -30,7 +29,7 @@ class KeicyFireStoreDataProvider {
       } else {
         return {"success": false, "errorCode": "404", "errorString": "Firestore Error"};
       }
-    } on PlatformException catch (e) {
+    } on FirebaseException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -53,7 +52,7 @@ class KeicyFireStoreDataProvider {
     try {
       await FirebaseFirestore.instance.collection(path).doc(id).update(data);
       return {"success": true, "data": data};
-    } on PlatformException catch (e) {
+    } on FirebaseException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -90,7 +89,7 @@ class KeicyFireStoreDataProvider {
     try {
       await FirebaseFirestore.instance.collection(path).doc(id).delete();
       return {"success": true};
-    } on PlatformException catch (e) {
+    } on FirebaseException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -109,7 +108,7 @@ class KeicyFireStoreDataProvider {
     try {
       final DocumentSnapshot docSnapShot = await FirebaseFirestore.instance.collection(path).doc(id).get();
       return {"success": docSnapShot.exists};
-    } on PlatformException catch (e) {
+    } on FirebaseException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -130,7 +129,7 @@ class KeicyFireStoreDataProvider {
       Map<String, dynamic> data = documentSnapshot.data();
       data["id"] = documentSnapshot.id;
       return {"success": true, "data": data};
-    } on PlatformException catch (e) {
+    } on FirebaseException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -180,7 +179,7 @@ class KeicyFireStoreDataProvider {
         data.add(tmp);
       }
       return {"success": true, "data": data};
-    } on PlatformException catch (e) {
+    } on FirebaseException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -238,7 +237,7 @@ class KeicyFireStoreDataProvider {
       if (limit != null) query = query.limit(limit);
       QuerySnapshot snapshot = await query.get();
       return {"success": true, "data": snapshot.docs.length};
-    } on PlatformException catch (e) {
+    } on FirebaseException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -319,7 +318,7 @@ class KeicyFireStoreDataProvider {
 
       parentSnapshot = await parentQuery.get();
       for (var i = 0; i < parentSnapshot.docs.length; i++) {}
-    } on PlatformException catch (e) {
+    } on FirebaseException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
