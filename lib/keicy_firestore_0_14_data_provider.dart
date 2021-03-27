@@ -115,7 +115,7 @@ class KeicyFireStoreDataProvider {
     }
   }
 
-  Future<Map<String, dynamic>> isDocExist({String path, String id}) async {
+  Future<Map<String, dynamic>> isDocExist({@required String path, @required String id}) async {
     try {
       final DocumentSnapshot docSnapShot = await FirebaseFirestore.instance.collection(path).doc(id).get();
       return {"success": docSnapShot.exists};
@@ -172,7 +172,7 @@ class KeicyFireStoreDataProvider {
     }
   }
 
-  Future<Map<String, dynamic>> getDocumentData({
+  Future<Map<String, dynamic>> getDocumentsData({
     @required String path,
     List<Map<String, dynamic>> wheres,
     List<Map<String, dynamic>> orderby,
@@ -289,7 +289,7 @@ class KeicyFireStoreDataProvider {
     }
   }
 
-  Future getDocumentDataWithChilCollection({
+  Future getDocumentsDataWithChilCollection({
     @required String parentCollectionName,
     @required String childCollectionName,
     List<Map<String, dynamic>> parentWheres,
