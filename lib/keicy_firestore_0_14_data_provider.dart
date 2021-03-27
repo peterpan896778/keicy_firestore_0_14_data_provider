@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class KeicyFireStoreDataProvider {
   static KeicyFireStoreDataProvider _instance = KeicyFireStoreDataProvider();
@@ -22,37 +23,13 @@ class KeicyFireStoreDataProvider {
         data: {'id': ref.id},
       );
       if (res["success"]) {
-        return {
-          "success": true,
-          "data": [data]
-        };
+        return {"success": true, "data": data};
       } else {
         return {"success": false, "errorCode": "404", "errorString": "Firestore Error"};
       }
     } on FirebaseException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
-    } catch (e) {
-      List<String> list = e.toString().split(regExp);
-      String errorString = list[2];
-      String errorCode;
-      if (e.toString().contains("FirebaseError")) {
-        errorCode = list[4];
-      } else {
-        errorCode = list[2];
-      }
-      return {"success": false, "errorCode": errorCode, "errorString": errorString};
-    }
-  }
-
-  Future<Map<String, dynamic>> updateDocument({
-    @required String path,
-    @required String id,
-    @required Map<String, dynamic> data,
-  }) async {
-    try {
-      await FirebaseFirestore.instance.collection(path).doc(id).update(data);
-      return {"success": true, "data": data};
-    } on FirebaseException catch (e) {
+    } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -67,7 +44,28 @@ class KeicyFireStoreDataProvider {
     }
   }
 
-  Future<bool> setDocument({
+  Future<Map<String, dynamic>> updateDocument({@required String path, @required String id, @required Map<String, dynamic> data}) async {
+    try {
+      await FirebaseFirestore.instance.collection(path).doc(id).update(data);
+      return {"success": true, "data": data};
+    } on FirebaseException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
+    } on PlatformException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
+    } catch (e) {
+      List<String> list = e.toString().split(regExp);
+      String errorString = list[2];
+      String errorCode;
+      if (e.toString().contains("FirebaseError")) {
+        errorCode = list[4];
+      } else {
+        errorCode = list[2];
+      }
+      return {"success": false, "errorCode": errorCode, "errorString": errorString};
+    }
+  }
+
+  Future<Map<String, dynamic>> setDocument({
     @required String path,
     @required String id,
     @required Map<String, dynamic> data,
@@ -78,10 +76,21 @@ class KeicyFireStoreDataProvider {
 
     try {
       await FirebaseFirestore.instance.collection(path).doc(id).set(data, setOptions);
-      return true;
+      return {"success": true};
+    } on FirebaseException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
+    } on PlatformException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
-      print(e);
-      return false;
+      List<String> list = e.toString().split(regExp);
+      String errorString = list[2];
+      String errorCode;
+      if (e.toString().contains("FirebaseError")) {
+        errorCode = list[4];
+      } else {
+        errorCode = list[2];
+      }
+      return {"success": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
@@ -90,6 +99,8 @@ class KeicyFireStoreDataProvider {
       await FirebaseFirestore.instance.collection(path).doc(id).delete();
       return {"success": true};
     } on FirebaseException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
+    } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -109,6 +120,8 @@ class KeicyFireStoreDataProvider {
       final DocumentSnapshot docSnapShot = await FirebaseFirestore.instance.collection(path).doc(id).get();
       return {"success": docSnapShot.exists};
     } on FirebaseException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
+    } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -130,6 +143,8 @@ class KeicyFireStoreDataProvider {
       data["id"] = documentSnapshot.id;
       return {"success": true, "data": data};
     } on FirebaseException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
+    } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -180,6 +195,8 @@ class KeicyFireStoreDataProvider {
       }
       return {"success": true, "data": data};
     } on FirebaseException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
+    } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -238,6 +255,8 @@ class KeicyFireStoreDataProvider {
       QuerySnapshot snapshot = await query.get();
       return {"success": true, "data": snapshot.docs.length};
     } on FirebaseException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
+    } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -319,6 +338,8 @@ class KeicyFireStoreDataProvider {
       parentSnapshot = await parentQuery.get();
       for (var i = 0; i < parentSnapshot.docs.length; i++) {}
     } on FirebaseException catch (e) {
+      return {"success": false, "errorCode": e.code, "errorString": e.message};
+    } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
       List<String> list = e.toString().split(regExp);
@@ -412,11 +433,14 @@ Query _getQuery(Query query, List<Map<String, dynamic>> wheres) {
       case "arrayContains":
         query = query.where(key, arrayContains: val);
         break;
+      case "arrayContainsAny":
+        query = query.where(key, arrayContainsAny: val);
+        break;
       case "whereIn":
         query = query.where(key, whereIn: val);
         break;
-      case "arrayContainsAny":
-        query = query.where(key, arrayContainsAny: val);
+      case "whereIn":
+        query = query.where(key, whereNotIn: val);
         break;
       case "like":
         dynamic start = [val];
