@@ -413,10 +413,13 @@ Query _getQuery(Query query, List<Map<String, dynamic>> wheres) {
         query = query.where(key, isEqualTo: val);
         break;
       case "null":
-        query = query.where(key, isEqualTo: val);
+        query = query.where(key, isNull: val);
         break;
       case "=":
         query = query.where(key, isEqualTo: val);
+        break;
+      case "!=":
+        query = query.where(key, isNotEqualTo: val);
         break;
       case "<":
         query = query.where(key, isLessThan: val);
