@@ -405,7 +405,7 @@ class KeicyFireStoreDataProvider {
 Query _getQuery(Query query, List<Map<String, dynamic>> wheres) {
   for (var i = 0; i < wheres.length; i++) {
     var key = wheres[i]["key"];
-    var cond = wheres[i]["cond"];
+    var cond = wheres[i]["cond"] ?? "=";
     var val = wheres[i]["val"];
 
     switch (cond.toString()) {
