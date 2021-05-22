@@ -15,6 +15,8 @@ class KeicyFireStoreDataProvider {
 
   Future<Map<String, dynamic>> addDocument({@required String path, @required Map<String, dynamic> data}) async {
     try {
+      data["ts"] = Timestamp.now().millisecondsSinceEpoch;
+      data["ts1"] = FieldValue.serverTimestamp();
       var ref = await FirebaseFirestore.instance.collection(path).add(data);
       data['id'] = ref.id;
       var res = await updateDocument(
@@ -46,6 +48,8 @@ class KeicyFireStoreDataProvider {
 
   Future<Map<String, dynamic>> updateDocument({@required String path, @required String id, @required Map<String, dynamic> data}) async {
     try {
+      data["ts"] = Timestamp.now().millisecondsSinceEpoch;
+      data["ts1"] = FieldValue.serverTimestamp();
       await FirebaseFirestore.instance.collection(path).doc(id).update(data);
       return {"success": true, "data": data};
     } on FirebaseException catch (e) {
@@ -73,7 +77,8 @@ class KeicyFireStoreDataProvider {
     List<dynamic> mergeFields = const [],
   }) async {
     SetOptions setOptions = SetOptions(merge: merge, mergeFields: mergeFields);
-
+    data["ts"] = Timestamp.now().millisecondsSinceEpoch;
+    data["ts1"] = FieldValue.serverTimestamp();
     try {
       await FirebaseFirestore.instance.collection(path).doc(id).set(data, setOptions);
       return {"success": true};
