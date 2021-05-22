@@ -15,14 +15,16 @@ class KeicyFireStoreDataProvider {
 
   Future<Map<String, dynamic>> addDocument({@required String path, @required Map<String, dynamic> data}) async {
     try {
-      data["ts"] = Timestamp.now().millisecondsSinceEpoch;
-      data["ts1"] = FieldValue.serverTimestamp();
+      data["ts"] = FieldValue.serverTimestamp();
+      data["createAt"] = FieldValue.serverTimestamp();
+      data["updateAt"] = FieldValue.serverTimestamp();
       var ref = await FirebaseFirestore.instance.collection(path).add(data);
       data['id'] = ref.id;
       var res = await updateDocument(
         path: path,
         id: ref.id,
         data: {'id': ref.id},
+        changeUpdateAt: false,
       );
       if (res["success"]) {
         return {"success": true, "data": data};
@@ -46,10 +48,15 @@ class KeicyFireStoreDataProvider {
     }
   }
 
-  Future<Map<String, dynamic>> updateDocument({@required String path, @required String id, @required Map<String, dynamic> data}) async {
+  Future<Map<String, dynamic>> updateDocument({
+    @required String path,
+    @required String id,
+    @required Map<String, dynamic> data,
+    @required bool changeUpdateAt,
+  }) async {
     try {
-      data["ts"] = Timestamp.now().millisecondsSinceEpoch;
-      data["ts1"] = FieldValue.serverTimestamp();
+      data["ts"] = FieldValue.serverTimestamp();
+      if (changeUpdateAt) data["updateAt"] = FieldValue.serverTimestamp();
       await FirebaseFirestore.instance.collection(path).doc(id).update(data);
       return {"success": true, "data": data};
     } on FirebaseException catch (e) {
@@ -57,15 +64,7 @@ class KeicyFireStoreDataProvider {
     } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "message": e.message};
     } catch (e) {
-      List<String> list = e.toString().split(regExp);
-      String message = list[2];
-      String errorCode;
-      if (e.toString().contains("FirebaseError")) {
-        errorCode = list[4];
-      } else {
-        errorCode = list[2];
-      }
-      return {"success": false, "errorCode": errorCode, "message": message};
+      return {"success": false, "errorCode": 500, "message": e.toString()};
     }
   }
 
@@ -73,12 +72,13 @@ class KeicyFireStoreDataProvider {
     @required String path,
     @required String id,
     @required Map<String, dynamic> data,
+    @required bool changeUpdateAt,
     bool merge = true,
     List<dynamic> mergeFields = const [],
   }) async {
     SetOptions setOptions = SetOptions(merge: merge, mergeFields: mergeFields);
-    data["ts"] = Timestamp.now().millisecondsSinceEpoch;
-    data["ts1"] = FieldValue.serverTimestamp();
+    data["ts"] = FieldValue.serverTimestamp();
+    if (changeUpdateAt) data["updateAt"] = FieldValue.serverTimestamp();
     try {
       await FirebaseFirestore.instance.collection(path).doc(id).set(data, setOptions);
       return {"success": true};
@@ -87,15 +87,7 @@ class KeicyFireStoreDataProvider {
     } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "message": e.message};
     } catch (e) {
-      List<String> list = e.toString().split(regExp);
-      String message = list[2];
-      String errorCode;
-      if (e.toString().contains("FirebaseError")) {
-        errorCode = list[4];
-      } else {
-        errorCode = list[2];
-      }
-      return {"success": false, "errorCode": errorCode, "message": message};
+      return {"success": false, "errorCode": 500, "message": e.toString()};
     }
   }
 
@@ -108,15 +100,7 @@ class KeicyFireStoreDataProvider {
     } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "message": e.message};
     } catch (e) {
-      List<String> list = e.toString().split(regExp);
-      String message = list[2];
-      String errorCode;
-      if (e.toString().contains("FirebaseError")) {
-        errorCode = list[4];
-      } else {
-        errorCode = list[2];
-      }
-      return {"success": false, "errorCode": errorCode, "message": message};
+      return {"success": false, "errorCode": 500, "message": e.toString()};
     }
   }
 
@@ -129,15 +113,7 @@ class KeicyFireStoreDataProvider {
     } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "message": e.message};
     } catch (e) {
-      List<String> list = e.toString().split(regExp);
-      String message = list[2];
-      String errorCode;
-      if (e.toString().contains("FirebaseError")) {
-        errorCode = list[4];
-      } else {
-        errorCode = list[2];
-      }
-      return {"success": false, "errorCode": errorCode, "message": message};
+      return {"success": false, "errorCode": 500, "message": e.toString()};
     }
   }
 
@@ -152,15 +128,7 @@ class KeicyFireStoreDataProvider {
     } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "message": e.message};
     } catch (e) {
-      List<String> list = e.toString().split(regExp);
-      String message = list[2];
-      String errorCode;
-      if (e.toString().contains("FirebaseError")) {
-        errorCode = list[4];
-      } else {
-        errorCode = list[2];
-      }
-      return {"success": false, "errorCode": errorCode, "message": message};
+      return {"success": false, "errorCode": 500, "message": e.toString()};
     }
   }
 
@@ -204,15 +172,7 @@ class KeicyFireStoreDataProvider {
     } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "message": e.message};
     } catch (e) {
-      List<String> list = e.toString().split(regExp);
-      String message = list[2];
-      String errorCode;
-      if (e.toString().contains("FirebaseError")) {
-        errorCode = list[4];
-      } else {
-        errorCode = list[2];
-      }
-      return {"success": false, "errorCode": errorCode, "message": message};
+      return {"success": false, "errorCode": 500, "message": e.toString()};
     }
   }
 
@@ -264,15 +224,7 @@ class KeicyFireStoreDataProvider {
     } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "message": e.message};
     } catch (e) {
-      List<String> list = e.toString().split(regExp);
-      String message = list[2];
-      String errorCode;
-      if (e.toString().contains("FirebaseError")) {
-        errorCode = list[4];
-      } else {
-        errorCode = list[2];
-      }
-      return {"success": false, "errorCode": errorCode, "message": message};
+      return {"success": false, "errorCode": 500, "message": e.toString()};
     }
   }
 
@@ -347,15 +299,7 @@ class KeicyFireStoreDataProvider {
     } on PlatformException catch (e) {
       return {"success": false, "errorCode": e.code, "message": e.message};
     } catch (e) {
-      List<String> list = e.toString().split(regExp);
-      String message = list[2];
-      String errorCode;
-      if (e.toString().contains("FirebaseError")) {
-        errorCode = list[4];
-      } else {
-        errorCode = list[2];
-      }
-      return {"success": false, "errorCode": errorCode, "message": message};
+      return {"success": false, "errorCode": 500, "message": e.toString()};
     }
   }
 
