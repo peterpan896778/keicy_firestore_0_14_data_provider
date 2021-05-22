@@ -178,15 +178,15 @@ class KeicyFireStoreDataProvider {
     List<Map<String, dynamic>> orderby,
     int limit,
   }) async {
-    CollectionReference ref;
-    Query query;
+    CollectionReference<Map<String, dynamic>> ref;
+    Query<Map<String, dynamic>> query;
     try {
       ref = FirebaseFirestore.instance.collection(path);
       query = ref;
       if (wheres != null) query = _getQuery(query, wheres);
       if (orderby != null) query = _getOrderby(query, orderby);
       if (limit != null) query = query.limit(limit);
-      QuerySnapshot snapshot = await query.get();
+      QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
       List<Map<String, dynamic>> data = [];
       for (var i = 0; i < snapshot.docs.length; i++) {
         var tmp = snapshot.docs.elementAt(i).data();
