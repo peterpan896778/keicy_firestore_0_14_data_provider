@@ -27,7 +27,7 @@ class KeicyFireStoreDataProvider {
         changeUpdateAt: false,
       );
       if (res["success"]) {
-        return {"success": true, "data": data};
+        return {"success": true, "data": res["data"]};
       } else {
         return {"success": false, "errorCode": "404", "message": "Firestore Error"};
       }
@@ -58,7 +58,8 @@ class KeicyFireStoreDataProvider {
       data["ts"] = FieldValue.serverTimestamp();
       if (changeUpdateAt) data["updateAt"] = FieldValue.serverTimestamp();
       await FirebaseFirestore.instance.collection(path).doc(id).update(data);
-      return {"success": true, "data": data};
+      var result = await getDocumentByID(path: path, id: id);
+      return {"success": true, "data": result["data"]};
     } on FirebaseException catch (e) {
       return {"success": false, "errorCode": e.code, "message": e.message};
     } on PlatformException catch (e) {
