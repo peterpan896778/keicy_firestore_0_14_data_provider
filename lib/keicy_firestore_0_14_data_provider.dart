@@ -392,7 +392,7 @@ Query _getQuery(Query query, List<Map<String, dynamic>> wheres) {
       case "whereIn":
         query = query.where(key, whereIn: val);
         break;
-      case "whereIn":
+      case "whereNotIn":
         query = query.where(key, whereNotIn: val);
         break;
       case "like":
