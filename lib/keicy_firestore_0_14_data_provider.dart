@@ -410,7 +410,7 @@ Query _getQuery(Query query, List<Map<String, dynamic>> wheres) {
 
 Query _getOrderby(Query query, List<Map<String, dynamic>> orderby) {
   for (var i = 0; i < orderby.length; i++) {
-    query = query.orderBy(orderby[i]["key"], descending: (orderby[i]["desc"] == null) ? false : true);
+    query = query.orderBy(orderby[i]["key"], descending: (orderby[i]["desc"] == null) ? false : orderby[i]["desc"]);
   }
   return query;
 }
