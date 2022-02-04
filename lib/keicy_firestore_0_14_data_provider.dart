@@ -1,8 +1,5 @@
-library keicy_firestore_0_14_data_provider;
-
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -152,15 +149,15 @@ class KeicyFireStoreDataProvider {
     List<Map<String, dynamic>> orderby,
     int limit,
   }) async {
-    CollectionReference<Map<String, dynamic>> ref;
-    Query<Map<String, dynamic>> query;
+    CollectionReference ref;
+    Query query;
     try {
       ref = FirebaseFirestore.instance.collection(path);
       query = ref;
       if (wheres != null) query = _getQuery(query, wheres);
       if (orderby != null) query = _getOrderby(query, orderby);
       if (limit != null) query = query.limit(limit);
-      QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
+      QuerySnapshot snapshot = await query.get();
       List<Map<String, dynamic>> data = [];
       for (var i = 0; i < snapshot.docs.length; i++) {
         var tmp = snapshot.docs.elementAt(i).data();
